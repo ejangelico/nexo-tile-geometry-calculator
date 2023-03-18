@@ -1,0 +1,11 @@
+The process of converting strips from shapely objects to DXF is pretty stupid... 
+
+1. Get the "tile" object that you want to export.
+2. call tile.export_strips(filetag) with filetag having no extension
+3. This will create ~10 files, with the end result being a .dxf, separate files for x and y strips
+4. Import this .dxf into Solidworks with units of millimeters
+5. Right click the imported model and go "Make edit sketch"
+6. Boss extrude the sketch to any value.
+7. Shift-click select all of the top surfaces of the strips
+8. Right-click and "Export to DXF/DFW", save with a tag that denotes it as "processed"
+9. This file is now importable to comsol with the "Geometry Import" function, with the import objects being "Curves, edges, and points" as opposed to solids and surfaces.
