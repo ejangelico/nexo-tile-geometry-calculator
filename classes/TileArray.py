@@ -61,35 +61,41 @@ class TileArray:
     #for a given shapely shape, find the overlap with 
     #various objects in the tile array
     def find_overlap(self, shape, thresh):
-
+        #bug with shapely creates warnings that will slow down the run. 
+        #turn those warnings off
+        initial_settings = np.seterr()
+        np.seterr(invalid="ignore")
         hit_objects = [] #[{"tile_id": , "type": 'x', 'y', 'diel', "strip_pos": pos in strip array, "area": overlap area}
         for id in self.ids:
             t = self.tiles[id]["t"]
             #first, for efficiency, check if this shape is within the
             #tile outline of this tile. 
             outline = t.tile_outline
-            outline_overlap = outline.intersection(shape).area 
-            if(outline_overlap < thresh):
+            #check if there is an intersection, boolean function
+            outline_overlap = outline.intersects(shape)
+            if(outline_overlap == False):
                 continue #to the next tile
             
             #go through strip polygons and calc overlap
             tot_conductor = 0
             for k, s in t.x_strip_polys.items():
-                ov = s.intersection(shape).area 
-                if(ov > thresh):
-                    hit_objects.append({"tile_id": id, "type": "x", "strip_pos": k, "area": ov})
-                    tot_conductor += ov
+                if(s.intersects(shape)):
+                    ov = s.intersection(shape).area 
+                    if(ov > thresh):
+                        hit_objects.append({"tile_id": id, "type": "x", "strip_pos": k, "area": ov})
+                        tot_conductor += ov
             for k, s in t.y_strip_polys.items():
-                ov = s.intersection(shape).area 
-                if(ov > thresh):
-                    hit_objects.append({"tile_id": id, "type": "y", "strip_pos": k, "area": ov})
-                    tot_conductor += ov
+                if(s.intersects(shape)):
+                    ov = s.intersection(shape).area 
+                    if(ov > thresh):
+                        hit_objects.append({"tile_id": id, "type": "y", "strip_pos": k, "area": ov})
+                        tot_conductor += ov
         
             #the amount on dielectric is defined as the overlap 
             #on the outline interior minus the total overlap 
             #on the conductors
             hit_objects.append({"tile_id": id, "type":"diel", "strip_pos": None, "area": (outline_overlap - tot_conductor)})
-        
+        np.seterr(**initial_settings)
         return hit_objects
 
 

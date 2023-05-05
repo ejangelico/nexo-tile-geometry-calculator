@@ -3,6 +3,7 @@ import sys
 import shapely
 from shapely.geometry import Polygon, mapping
 from shapely.ops import unary_union
+from shapely import affinity
 import matplotlib.pyplot as plt 
 #import fiona
 import json

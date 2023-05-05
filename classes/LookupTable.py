@@ -3,6 +3,7 @@ from shapely.ops import unary_union
 import shapely
 from shapely.geometry import Polygon
 from shapely.geometry.point import Point
+from shapely import affinity
 import matplotlib.pyplot as plt 
 import pandas as pd 
 import time
@@ -380,7 +381,7 @@ class LookupTable:
 
 					lost_charge = 1 - cond_charge - diel_charge
 
-					ds = pd.Series()
+					ds = pd.Series(dtype='object')
 					ds['x'] = x
 					ds['y'] = y 
 					ds['z'] = z
@@ -390,11 +391,10 @@ class LookupTable:
 					ds['diel_charge'] = diel_charge
 					ds['lost_charge'] = lost_charge
 					ds['hit_objects'] = hit_objects #the full list of dicts for future use in detailed analyses
-					self.output_df = self.output_df.append(ds, ignore_index = True)
+					self.output_df = pd.concat([self.output_df, ds])
 					counter += 1
 
-		print("Time per point is " + str((time.time() - t0)/ncoords))
-		print("Total memory usage is " + str(self.output_df.memory_usage(index=True).sum()/1e6) + " MB")
+		print("Total time " + str((time.time() - t0)))
 
 
 	#plots lost energy as a function of
